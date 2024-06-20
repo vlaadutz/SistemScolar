@@ -15,7 +15,7 @@ Pentru o funcţionare optimă, proiectul necesită următoarele:
 
 ## Instalare
 Pentru instalarea locală a proiectului, utilizează comanda:
-- `git clone https://github.com/VladDisco07/SistemScolar`
+- `git clone https://github.com/vlaadutz/SistemScolar`
 
 ## Licenţă
 Acest proiect este licenţiat sub Licenţa AGPL-3.0 - vezi fişierul LICENSE pentru mai multe informaţii.
