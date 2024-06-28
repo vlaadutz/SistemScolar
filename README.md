@@ -1,7 +1,7 @@
 # Sistem Şcolar
 **Această aplicație este destinată gestionării informațiilor referitoare la elevi și profesori din municipiul București și județul Ilfov. De asemenea, facilitează vizualizarea datelor și statisticilor într-un mod simplu și eficient, oferind utilizatorilor o experiență intuitivă și accesibilă în administrarea datelor.**
 
-![Statistici cu privire la mediile unui elev](https://cdn.discordapp.com/attachments/1232629849789562880/1249338998804058172/image.png?ex=6666f11c&is=66659f9c&hm=76470433eaf76b59267013a29f59d8724db42aade75df6516bf99aec94c87ad9&)
+![Statistici cu privire la mediile unui elev](https://cdn.discordapp.com/attachments/1232629849789562880/1256220254393335828/image.png?ex=667ff9c8&is=667ea848&hm=a97494e3b711332cac8bb341abcbdd3214db11ec2a0fe9880ad12b0bfd09f62c&)
 ## Funcţionalităţi
 - Adăugare/Actualizare date personale elevi/profesori
 - Adăugare/Actualizare medii elevi
