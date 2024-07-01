@@ -1,5 +1,5 @@
 # Sistem Şcolar
-**Această aplicație este destinată gestionării informațiilor referitoare la elevi și profesori din municipiul București și județul Ilfov. De asemenea, facilitează vizualizarea datelor și statisticilor într-un mod simplu și eficient, oferind utilizatorilor o experiență intuitivă și accesibilă în administrarea datelor.**
+**Această aplicație este destinată gestionării informațiilor referitoare la elevi și profesori din municipiul București și județul Ilfov. De asemenea, facilitează vizualizarea datelor și statisticilor într-un mod simplu și eficient, oferind utilizatorilor o experiență intuitivă și accesibilă în administrarea datelor. Aplicatia a fost realizată folosind framework-ul CodeIgniter 3.**
 
 ![Statistici cu privire la mediile unui elev](https://cdn.discordapp.com/attachments/1232629849789562880/1256220254393335828/image.png?ex=667ff9c8&is=667ea848&hm=a97494e3b711332cac8bb341abcbdd3214db11ec2a0fe9880ad12b0bfd09f62c&)
 ## Funcţionalităţi
