@@ -16,7 +16,7 @@
 - Backend
   	- PHP
   	- CodeIgniter
-  	- SQLIte
+  	- SQLite
 
 ## Cerinţe
 Pentru o funcţionare optimă, proiectul necesită următoarele:
