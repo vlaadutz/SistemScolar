@@ -3,7 +3,8 @@
     {
         function index()
         {
-            $this -> acasa();
+			$this -> load -> helper("url");
+			header("Location: " . base_url() . "acasa");
         }
 
         function acasa()
@@ -64,7 +65,7 @@
             }
             else
             {
-                $this -> panou_control_elevi();
+                header("Location: " . base_url() . "panou_control_elevi");
             }
         }
 
@@ -72,48 +73,21 @@
         {
             $this -> load -> helper("url");
             $this -> load -> library("session");
-            $this -> load -> library("form_validation");
-            $this -> load -> database();
+			$this -> load -> model("Elev");
+			$this -> load -> model("Dropdown");
 
-            // validare date elev
-            $this -> form_validation -> set_rules("clasa", "Clasa", "required");
-            $this -> form_validation -> set_rules("sex", "Sex", "required");
-            $this -> form_validation -> set_rules("nume", "Nume", "required");
-            $this -> form_validation -> set_rules("prenume", "Prenume", "required");
-            $this -> form_validation -> set_rules("adresa", "Adresa", "required");
-            $this -> form_validation -> set_rules("telefon", "Telefon", "required");
-            $this -> form_validation -> set_rules("email", "Email", "required");
-            $this -> form_validation -> set_rules("dataNasterii", "Data Nasterii", "required");
-            $this -> form_validation -> set_rules("dataInregistrarii", "Data Inregistrarii", "required");
-            $this -> form_validation -> set_rules("judet", "Judet", "required");
-            $this -> form_validation -> set_rules("oras", "Oras", "required");
-            if ($this -> form_validation -> run())
+            if ($this -> Elev -> validare_date())
             {
-				// adaugare date elev dupa validare
-                $clasa = $this -> db -> escape_str($this -> input -> post("clasa"));
-                $sex = $this -> db -> escape_str($this -> input -> post("sex"));
-                $nume = $this -> db -> escape_str($this -> input -> post("nume"));
-                $prenume = $this -> db -> escape_str($this -> input -> post("prenume"));
-                $adresa = $this -> db -> escape_str($this -> input -> post("adresa"));
-                $telefon = $this -> db -> escape_str($this -> input -> post("telefon"));
-                $email = $this -> db -> escape_str($this -> input -> post("email"));
-                $dataNasterii = $this -> db -> escape_str($this -> input -> post("dataNasterii"));
-                $dataInregistrarii = $this -> db -> escape_str($this -> input -> post("dataInregistrarii"));
-                $judet = $this -> db -> escape_str($this -> input -> post("judet"));
-                $oras = $this -> db -> escape_str($this -> input -> post("oras"));
-
-                $this -> db -> insert("Elevi", array("clasaID" => $clasa, "sex" => $sex, "nume" => $nume, "prenume" => $prenume, "adresa" => $adresa, "telefon" => $telefon, "email" => $email, "dataNasterii" => $dataNasterii, "dataInregistrarii" => $dataInregistrarii, "judetID" => $judet, "orasID" => $oras));
+                $this -> Elev -> adaugare_date($this -> input -> post("clasa"), $this -> input -> post("sex"), $this -> input -> post("nume"), $this -> input -> post("prenume"), $this -> input -> post("adresa"), $this -> input -> post("telefon"), $this -> input -> post("email"), $this -> input -> post("dataNasterii"), $this -> input -> post("dataInregistrarii"), $this -> input -> post("judet"), $this -> input -> post("oras"));
             }
 
-            $date = array("url" => base_url(), "autentificat" => false);
-
-            // preluare date pentru dropdown
-            $clasePreluate = ($this -> db -> get("Clase")) -> result();
-            $judetePreluate = ($this -> db -> get("Judete")) -> result();
-            $orasePreluate = ($this -> db -> get("Orase")) -> result();
-            $date["clasePreluate"] = $clasePreluate;
-            $date["judetePreluate"] = $judetePreluate;
-            $date["orasePreluate"] = $orasePreluate;
+            $date = array(
+				"url" => base_url(), 
+				"autentificat" => false,
+				"clasePreluate" => $this -> Dropdown -> preluare_clase_judete_orase()["clasePreluate"],
+				"judetePreluate" => $this -> Dropdown -> preluare_clase_judete_orase()["judetePreluate"],
+				"orasePreluate" => $this -> Dropdown -> preluare_clase_judete_orase()["orasePreluate"]
+			);
 
             if (isset($this -> session -> numeUtilizator))
             {
@@ -123,7 +97,7 @@
             }
             else
             {
-                $this -> autentificare();
+                header("Location: " . base_url() . "autentificare");
             }
         } 
 
@@ -132,6 +106,7 @@
             $this -> load -> library("session");
             $this -> load -> library("form_validation");
             $this -> load -> helper("url");
+			$this -> load -> model("Elev");
             $this -> load -> database();
 
             // verificare nume cautat
@@ -150,7 +125,7 @@
             {
                 if ($seCauta == false)
                 {
-                    $elevi = ($this -> db -> get("elevi")) -> result();
+                    $elevi = $this -> Elev -> preluare_toti();
                 }
                 $date = array("url" => base_url(), "autentificat" => true, "elevi" => $elevi);
                 $this -> load -> view("sabloane/header.php", $date);
@@ -158,63 +133,39 @@
             }
             else
             {
-                $this -> autentificare();
+                header("Location: " . base_url() . "autentificare");
             }
         }
 
 		function editare_elev($elev = "E")
 		{
-			$this -> load -> library("session");
-			$this -> load -> library("form_validation");
 			$this -> load -> helper("url");
-			$this -> load -> database();
 			$this -> load -> library("session");
+			$this -> load -> model("Elev");
+			$this -> load -> model("Dropdown");
 
-			// validare date elev
-			$this -> form_validation -> set_rules("clasa", "Clasa", "required");
-			$this -> form_validation -> set_rules("sex", "Sex", "required");
-			$this -> form_validation -> set_rules("nume", "Nume", "required");
-			$this -> form_validation -> set_rules("prenume", "Prenume", "required");
-			$this -> form_validation -> set_rules("adresa", "Adresa", "required");
-			$this -> form_validation -> set_rules("telefon", "Telefon", "required");
-			$this -> form_validation -> set_rules("email", "Email", "required");
-			$this -> form_validation -> set_rules("dataNasterii", "Data Nasterii", "required");
-			$this -> form_validation -> set_rules("dataInregistrarii", "Data Inregistrarii", "required");
-			$this -> form_validation -> set_rules("judet", "Judet", "required");
-			$this -> form_validation -> set_rules("oras", "Oras", "required");
-
-			if ($this -> form_validation -> run())
+			if ($this -> Elev -> validare_date())
 			{
-				// actualizare date elev dupa validare
-				$clasa = $this -> db -> escape_str($this -> input -> post("clasa"));
-				$sex = $this -> db -> escape_str($this -> input -> post("sex"));
-				$nume = $this -> db -> escape_str($this -> input -> post("nume"));
-				$prenume = $this -> db -> escape_str($this -> input -> post("prenume"));
-				$adresa = $this -> db -> escape_str($this -> input -> post("adresa"));
-				$telefon = $this -> db -> escape_str($this -> input -> post("telefon"));
-				$email = $this -> db -> escape_str($this -> input -> post("email"));
-				$dataNasterii = $this -> db -> escape_str($this -> input -> post("dataNasterii"));
-				$dataInregistrarii = $this -> db -> escape_str($this -> input -> post("dataInregistrarii"));
-				$judet = $this -> db -> escape_str($this -> input -> post("judet"));
-				$oras = $this -> db -> escape_str($this -> input -> post("oras"));
-
-				$this -> db -> update("Elevi", array("clasaID" => $clasa, "sex" => $sex, "nume" => $nume, "prenume" => $prenume, "adresa" => $adresa, "telefon" => $telefon, "email" => $email, "dataNasterii" => $dataNasterii, "dataInregistrarii" => $dataInregistrarii, "judetID" => $judet, "orasID" => $oras), array("elevID" => $elev));
+				$this -> Elev -> actualizare_date($elev, $this -> input -> post("clasa"), $this -> input -> post("sex"), $this -> input -> post("nume"), $this -> input -> post("prenume"), $this -> input -> post("adresa"), $this -> input -> post("telefon"), $this -> input -> post("email"), $this -> input -> post("dataNasterii"), $this -> input -> post("dataInregistrarii"), $this -> input -> post("judet"), $this -> input -> post("oras"));				
 			}
 
 			if ($elev != "E")
 			{
 				if (isset($this -> session -> numeUtilizator))
 				{
-					// preluare date vechi si completare in campuri
-					$dateElevVechi = ($this -> db -> get_where("Elevi", array("elevID" => $elev))) -> result();
+					// preluare date vechi pt a fi completare in campuri
+					$dateElevVechi = $this -> Elev -> preluare_date($elev);
 
 					if (count($dateElevVechi) != 0)
 					{
-						$date = array("url" => base_url(), "autentificat" => true);
-						$date["clasePreluate"] = ($this -> db -> get("clase")) -> result();
-						$date["judetePreluate"] = ($this -> db -> get("judete")) -> result();
-						$date["orasePreluate"] = ($this -> db -> get("orase")) -> result();
-						$date["dateElevVechi"] = $dateElevVechi;
+						$date = array(
+							"url" => base_url(), 
+							"autentificat" => true,
+							"dateElevVechi" => $dateElevVechi,
+							"clasePreluate" => $this -> Dropdown -> preluare_clase_judete_orase()["clasePreluate"],
+							"judetePreluate" => $this -> Dropdown -> preluare_clase_judete_orase()["judetePreluate"],
+							"orasePreluate" => $this -> Dropdown -> preluare_clase_judete_orase()["orasePreluate"]
+						);
 
 						$this -> load -> view("sabloane/header.php", $date);
 						$this -> load -> view("pagini/editare_elev", $date);
@@ -226,7 +177,7 @@
 				}
 				else
 				{
-					$this -> autentificare();
+					header("Location: " . base_url() . "autentificare");
 				}
 			}
 			else
@@ -238,17 +189,17 @@
 		function stergere_elev($elev = "E")
 		{
 			$this -> load -> library("session");
-			$this -> load -> database();
+			$this -> load -> model("Elev");
 
 			if ($elev != "E")
 			{
 				if (isset($this -> session -> numeUtilizator))
 				{
-					$this -> db -> delete("elevi", array("elevID" => $elev));
+					$this -> Elev -> stergere($elev);
 				}
 				else
 				{
-					$this -> autentificare();
+					header("Location: " . base_url() . "autentificare");
 				}
 			}
 			else
@@ -259,27 +210,25 @@
 
 		function statistici_elev($elev = "E")
 		{
+			$this -> load -> helper("url");
 			$this -> load -> library("session");
 			$this -> load -> library("form_validation");
-			$this -> load -> helper("url");
-			$this -> load -> database();
-			$this -> load -> library("session");
-
-			$this -> form_validation -> set_rules("medie", "Medie", "required");
-			if ($this -> form_validation -> run())
+			$this -> load -> model("Elev");
+			$this -> load -> model("Medie");
+			$this -> load -> model("Materie");
+			
+			if ($this -> Medie -> validare())
 			{
 				$materie = $this -> input -> post("materie");
 				$medie = $this -> input -> post("medie");
 
-				// daca media deja exista in tabel se actualizeaza
-				$exista = ($this -> db -> get_where("medii", array("elevID" => $elev, "materieID" => $materie))) -> result();
-				if (count($exista) > 0)
+				if ($this -> Medie -> exista($elev, $materie))
 				{
-					$this -> db -> update("medii", array("medie" => $medie), array("elevID" => $elev, "materieID" => $materie));
+					$this -> Medie -> actualizare($elev, $materie, $medie);
 				}
 				else
 				{
-					$this -> db -> insert("medii", array("elevID" => $elev, "materieID" => $materie, "medie" => $medie));
+					$this -> Medie -> adaugare($elev, $materie, $medie);
 				}
 			}
 
@@ -288,16 +237,16 @@
 				if (isset($this -> session -> numeUtilizator))
 				{
 					$date = array("url" => base_url(), "autentificat" => true);
-					$date["numeElev"] = ($this -> db -> query("SELECT elevID, nume, prenume FROM Elevi WHERE elevID = {$elev}")) -> result();
-					$date["materiiPreluate"] = ($this -> db -> get("materii")) -> result();
-					$date["mediiPreluate"] = ($this -> db -> query("SELECT Materii.nume AS numeMaterie, Medii.medie AS medie FROM Materii JOIN Medii ON Medii.materieID = Materii.materieID WHERE Medii.elevID = {$elev}")) -> result();
+					$date["numeElev"] = $this -> Elev -> preluare_date($elev);
+					$date["materiiPreluate"] = $this -> Materie -> preluare_toate();
+					$date["mediiPreluate"] = $this -> Medie -> preluare_elev($elev);
 
 					$this -> load -> view("sabloane/header.php", $date);
 					$this -> load -> view("pagini/statistici_elev", $date);
 				}
 				else
 				{
-					$this -> autentificare();
+					header("Location: " . base_url() . "autentificare");
 				}
 			}
 			else
@@ -308,19 +257,20 @@
 
 		function stergere_medii($elev = "E")
 		{
+			$this -> load -> helper("url");
 			$this -> load -> library("session");
-			$this -> load -> database();
+			$this -> load -> model("Medie");
 
 			if ($elev != "E")
 			{
 				if (isset($this -> session -> numeUtilizator))
 				{
-					$this -> db -> delete("medii", array("elevID" => $elev));
-					$this -> index();
+					$this -> Medie -> stergere($elev);
+					header("Location: " . base_url() . "acasa");
 				}
 				else
 				{
-					$this -> autentificare();
+					header("Location: " . base_url() . "autentificare");
 				}
 			}
 			else
@@ -331,61 +281,33 @@
 
 		function panou_control_profesori()
         {
-            $this -> load -> database();
             $this -> load -> helper("url");
             $this -> load -> library("session");
-            $this -> load -> library("form_validation");
-
-			// validare date profesor
-			$this -> form_validation -> set_rules("materie", "Materie", "required");
-			$this -> form_validation -> set_rules("sex", "Sex", "required");
-			$this -> form_validation -> set_rules("nume", "Nume", "required");
-			$this -> form_validation -> set_rules("prenume", "Prenume", "required");
-			$this -> form_validation -> set_rules("adresa", "Adresa", "required");
-			$this -> form_validation -> set_rules("telefon", "Telefon", "required");
-			$this -> form_validation -> set_rules("email", "Email", "required");
-			$this -> form_validation -> set_rules("dataNasterii", "Data Nasterii", "required");
-			$this -> form_validation -> set_rules("dataInregistrarii", "Data Inregistrarii", "required");
-			$this -> form_validation -> set_rules("judet", "Judet", "required");
-			$this -> form_validation -> set_rules("oras", "Oras", "required");
-			if ($this -> form_validation -> run())
+			$this -> load -> model("Dropdown");
+			$this -> load -> model("Profesor");
+			
+			if ($this -> Profesor -> validare())
 			{
-				// adaugare date profesor dupa validare
-				$materie = $this -> db -> escape_str($this -> input -> post("materie"));
-				$sex = $this -> db -> escape_str($this -> input -> post("sex"));
-				$nume = $this -> db -> escape_str($this -> input -> post("nume"));
-				$prenume = $this -> db -> escape_str($this -> input -> post("prenume"));
-				$adresa = $this -> db -> escape_str($this -> input -> post("adresa"));
-				$telefon = $this -> db -> escape_str($this -> input -> post("telefon"));
-				$email = $this -> db -> escape_str($this -> input -> post("email"));
-				$dataNasterii = $this -> db -> escape_str($this -> input -> post("dataNasterii"));
-				$dataInregistrarii = $this -> db -> escape_str($this -> input -> post("dataInregistrarii"));
-				$judet = $this -> db -> escape_str($this -> input -> post("judet"));
-				$oras = $this -> db -> escape_str($this -> input -> post("oras"));
-
-				$this -> db -> insert("Profesori", array("materieID" => $materie, "sex" => $sex, "nume" => $nume, "prenume" => $prenume, "adresa" => $adresa, "telefon" => $telefon, "email" => $email, "dataNasterii" => $dataNasterii, "dataInregistrarii" => $dataInregistrarii, "judetID" => $judet, "orasID" => $oras));
+				$this -> Profesor -> adaugare($this -> input -> post("materie"), $this -> input -> post("sex"), $this -> input -> post("nume"), $this -> input -> post("prenume"), $this -> input -> post("adresa"), $this -> input -> post("telefon"), $this -> input -> post("email"), $this -> input -> post("dataNasterii"), $this -> input -> post("dataInregistrarii"), $this -> input -> post("judet"), $this -> input -> post("oras"));
 			}
 
             if (isset($this -> session -> numeUtilizator))
             {
-                $date = array("url" => base_url(), "autentificat" => true);
-
-				// preluare date pentru dropdown
-				$materiiPreluate = ($this -> db -> get("Materii")) -> result();
-				$clasePreluate = ($this -> db -> get("Clase")) -> result();
-				$judetePreluate = ($this -> db -> get("Judete")) -> result();
-				$orasePreluate = ($this -> db -> get("Orase")) -> result();
-				$date["materiiPreluate"] = $materiiPreluate;
-				$date["clasePreluate"] = $clasePreluate;
-				$date["judetePreluate"] = $judetePreluate;
-				$date["orasePreluate"] = $orasePreluate;
+                $date = array(
+					"url" => base_url(), 
+					"autentificat" => true,
+					"materiiPreluate" => $this -> Dropdown -> preluare_materii_clase_judete_orase()["materiiPreluate"],
+					"clasePreluate" => $this -> Dropdown -> preluare_materii_clase_judete_orase()["clasePreluate"],
+					"judetePreluate" => $this -> Dropdown -> preluare_materii_clase_judete_orase()["judetePreluate"],
+					"orasePreluate" => $this -> Dropdown -> preluare_materii_clase_judete_orase()["orasePreluate"]
+				);
 
                 $this -> load -> view("sabloane/header.php", $date);
                 $this -> load -> view("pagini/panou_control_profesori.php");
             }
             else
             {
-                $this -> autentificare();
+                header("Location: " . base_url() . "autentificare");
             }
         }
 
@@ -394,6 +316,7 @@
 			$this -> load -> library("session");
 			$this -> load -> library("form_validation");
 			$this -> load -> helper("url");
+			$this -> load -> model("Profesor");
 			$this -> load -> database();
 
 			// verificare nume cautat
@@ -412,7 +335,7 @@
 			{
 				if ($seCauta == false)
 				{
-					$profesori = ($this -> db -> get("Profesori")) -> result();
+					$profesori = $this -> Profesor -> preluare_toti();
 				}
 				$date = array("url" => base_url(), "autentificat" => true, "profesori" => $profesori);
 				$this -> load -> view("sabloane/header.php", $date);
@@ -420,7 +343,7 @@
 			}
 			else
 			{
-				$this -> autentificare();
+				header("Location: " . base_url() . "autentificare");
 			}
 		}
 
@@ -429,38 +352,12 @@
 			$this -> load -> library("session");
 			$this -> load -> library("form_validation");
 			$this -> load -> helper("url");
-			$this -> load -> database();
-			$this -> load -> library("session");
+			$this -> load -> model("Profesor");
+			$this -> load -> model("Dropdown");
 
-			// validare date profesor
-			$this -> form_validation -> set_rules("materie", "Materie", "required");
-			$this -> form_validation -> set_rules("sex", "Sex", "required");
-			$this -> form_validation -> set_rules("nume", "Nume", "required");
-			$this -> form_validation -> set_rules("prenume", "Prenume", "required");
-			$this -> form_validation -> set_rules("adresa", "Adresa", "required");
-			$this -> form_validation -> set_rules("telefon", "Telefon", "required");
-			$this -> form_validation -> set_rules("email", "Email", "required");
-			$this -> form_validation -> set_rules("dataNasterii", "Data Nasterii", "required");
-			$this -> form_validation -> set_rules("dataInregistrarii", "Data Inregistrarii", "required");
-			$this -> form_validation -> set_rules("judet", "Judet", "required");
-			$this -> form_validation -> set_rules("oras", "Oras", "required");
-
-			if ($this -> form_validation -> run())
+			if ($this -> Profesor -> validare())
 			{
-				// actualizare date profesor dupa validare
-				$materie = $this -> db -> escape_str($this -> input -> post("materie"));
-				$sex = $this -> db -> escape_str($this -> input -> post("sex"));
-				$nume = $this -> db -> escape_str($this -> input -> post("nume"));
-				$prenume = $this -> db -> escape_str($this -> input -> post("prenume"));
-				$adresa = $this -> db -> escape_str($this -> input -> post("adresa"));
-				$telefon = $this -> db -> escape_str($this -> input -> post("telefon"));
-				$email = $this -> db -> escape_str($this -> input -> post("email"));
-				$dataNasterii = $this -> db -> escape_str($this -> input -> post("dataNasterii"));
-				$dataInregistrarii = $this -> db -> escape_str($this -> input -> post("dataInregistrarii"));
-				$judet = $this -> db -> escape_str($this -> input -> post("judet"));
-				$oras = $this -> db -> escape_str($this -> input -> post("oras"));
-
-				$this -> db -> update("profesori", array("materieID" => $materie, "sex" => $sex, "nume" => $nume, "prenume" => $prenume, "adresa" => $adresa, "telefon" => $telefon, "email" => $email, "dataNasterii" => $dataNasterii, "dataInregistrarii" => $dataInregistrarii, "judetID" => $judet, "orasID" => $oras), array("profesorID" => $profesor));
+				$this -> Profesor -> actualizare($profesor, $this -> input -> post("materie"), $this -> input -> post("sex"), $this -> input -> post("nume"), $this -> input -> post("prenume"), $this -> input -> post("adresa"), $this -> input -> post("telefon"), $this -> input -> post("email"), $this -> input -> post("dataNasterii"), $this -> input -> post("dataInregistrarii"), $this -> input -> post("judet"), $this -> input -> post("oras"));
 			}
 
 			if ($profesor != "E")
@@ -468,15 +365,18 @@
 				if (isset($this -> session -> numeUtilizator))
 				{
 					// preluare date vechi si completare in campuri
-					$dateProfesorVechi = ($this -> db -> get_where("Profesori", array("profesorID" => $profesor))) -> result();
+					$dateProfesorVechi = $this -> Profesor -> preluare_date($profesor);
 
 					if (count($dateProfesorVechi) != 0)
 					{
-						$date = array("url" => base_url(), "autentificat" => true);
-						$date["materiiPreluate"] = ($this -> db -> get("materii")) -> result();
-						$date["judetePreluate"] = ($this -> db -> get("judete")) -> result();
-						$date["orasePreluate"] = ($this -> db -> get("orase")) -> result();
-						$date["dateProfesorVechi"] = $dateProfesorVechi;
+						$date = array(
+							"url" => base_url(), 
+							"autentificat" => true,
+							"materiiPreluate" => $this -> Dropdown -> preluare_materii_clase_judete_orase()["materiiPreluate"],
+							"judetePreluate" => $this -> Dropdown -> preluare_materii_clase_judete_orase()["judetePreluate"],
+							"orasePreluate" => $this -> Dropdown -> preluare_materii_clase_judete_orase()["orasePreluate"],
+							"dateProfesorVechi" => $dateProfesorVechi
+						);
 
 						$this -> load -> view("sabloane/header.php", $date);
 						$this -> load -> view("pagini/editare_profesor", $date);
@@ -488,7 +388,7 @@
 				}
 				else
 				{
-					$this -> autentificare();
+					header("Location: " . base_url() . "autentificare");
 				}
 			}
 			else
@@ -500,18 +400,18 @@
 		function stergere_profesor($profesor = "E")
 		{
 			$this -> load -> library("session");
-			$this -> load -> database();
+			$this -> load -> model("Profesor");
 
 			if ($profesor != "E")
 			{
 				if (isset($this -> session -> numeUtilizator))
 				{
-					$this -> db -> delete("profesori", array("profesorID" => $profesor));
-					$this -> index();
+					$this -> Profesor -> stergere($profesor);
+					header("Location: " . base_url() . "acasa");
 				}
 				else
 				{
-					$this -> autentificare();
+					header("Location: " . base_url() . "autentificare");
 				}
 			}
 			else
@@ -524,19 +424,22 @@
 		{
 			$this -> load -> library("session");
 			$this -> load -> helper("url");
-			$this -> load -> database();
+			$this -> load -> model("Taxe");
 
 			if (isset($this -> session -> numeUtilizator))
 			{
-				$date = array("url" => base_url(), "autentificat" => true);
-				$date["burse"] = ($this -> db -> query("SELECT Burse.bursa AS bursa, Orase.numeOras AS numeOras FROM Burse JOIN Orase on Burse.orasID = Orase.orasID;")) -> result();
+				$date = array(
+					"url" => base_url(), 
+					"autentificat" => true,
+					"burse" => $this -> Taxe -> preluare_date()
+				);
 
 				$this -> load -> view("sabloane/header", $date);
 				$this -> load -> view("pagini/panou_control_taxe");
 			}
 			else
 			{
-				$this -> autentificare();
+				header("Location: " . base_url() . "autentificare");
 			}
 		}
 
@@ -545,32 +448,27 @@
 			$this -> load -> library("session");
 			$this -> load -> helper("url");
 			$this -> load -> database();
+			$this -> load -> model("Rapoarte");
 
 			if (isset($this -> session -> numeUtilizator))
 			{
-				$date = array("url" => base_url(), "autentificat" => true);
-
-				// preluare date statistici
-				$peste5B = ($this -> db -> query("SELECT COUNT(Medii.medieID) AS medie FROM Medii JOIN Elevi ON Elevi.elevID = Medii.elevID WHERE Elevi.judetID = 1 AND Medii.medie >= 5;")) -> result();
-				$peste5IF = ($this -> db -> query("SELECT COUNT(Medii.medieID) AS medie FROM Medii JOIN Elevi ON Elevi.elevID = Medii.elevID WHERE Elevi.judetID = 2 AND Medii.medie >= 5;")) -> result();
-				$sub5B = ($this -> db -> query("SELECT COUNT(Medii.medieID) AS medie FROM Medii JOIN Elevi ON Elevi.elevID = Medii.elevID WHERE Elevi.judetID = 1 AND Medii.medie < 5;")) -> result();
-				$sub5IF = ($this -> db -> query("SELECT COUNT(Medii.medieID) AS medie FROM Medii JOIN Elevi ON Elevi.elevID = Medii.elevID WHERE Elevi.judetID = 2 AND Medii.medie < 5;")) -> result();
-				$B10 = ($this -> db -> query("SELECT COUNT(Medii.medieID) AS medie FROM Medii JOIN Elevi ON Elevi.elevID = Medii.elevID WHERE Elevi.judetID = 1 AND Medii.medie = 10;")) -> result();
-				$IF10 = ($this -> db -> query("SELECT COUNT(Medii.medieID) AS medie FROM Medii JOIN Elevi ON Elevi.elevID = Medii.elevID WHERE Elevi.judetID = 2 AND Medii.medie = 10;")) -> result();
-
-				$date["peste5B"] = $peste5B;
-				$date["peste5IF"] = $peste5IF;
-				$date["sub5B"] = $sub5B;
-				$date["sub5IF"] = $sub5IF;
-				$date["B10"] = $B10;
-				$date["IF10"] = $IF10;
+				$date = array(
+					"url" => base_url(), 
+					"autentificat" => true,
+					"peste5B" => $this -> Rapoarte -> preluare_date()["peste5B"],
+					"peste5IF" => $this -> Rapoarte -> preluare_date()["peste5IF"],
+					"sub5B" => $this -> Rapoarte -> preluare_date()["sub5B"],
+					"sub5IF" => $this -> Rapoarte -> preluare_date()["sub5IF"],
+					"B10" => $this -> Rapoarte -> preluare_date()["B10"],
+					"IF10" => $this -> Rapoarte -> preluare_date()["IF10"],
+				);
 
 				$this -> load -> view("sabloane/header.php", $date);
 				$this -> load -> view("pagini/panou_control_rapoarte.php");
 			}
 			else
 			{
-				$this -> autentificare();
+				header("Location: " . base_url() . "autentificare");
 			}
 		}
     }
