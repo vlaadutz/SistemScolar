@@ -11,8 +11,11 @@
 
 ## Tehnologii utilizate
 **Frontend**
+
 ![Bootstrap](resurse/repo/iconite/bootstrap.png)![JQuery](resurse/repo/iconite/jquery.png)
+
 **Backend**
+
 ![PHP](resurse/repo/iconite/php.png)![CodeIgniter](resurse/repo/iconite/codeigniter.png)![SQLite](resurse/repo/iconite/sqlite3.png)
 
 ## Cerinţe
